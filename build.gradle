@@ -7,7 +7,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion project.USE_SDK_VERSION
+    compileSdkVersion USE_SDK_VERSION
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion targetSdk
