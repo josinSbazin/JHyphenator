@@ -9,7 +9,7 @@ repositories {
 android {
     compileSdkVersion USE_SDK_VERSION
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion minSdk
         targetSdkVersion targetSdk
         buildConfigField 'boolean', 'IS_BETA', IS_BETA
     }
