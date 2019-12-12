@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -17,11 +16,7 @@ public class Hyphenator implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //private static HashMap<String, Hyphenator> cached;
-//
-//    static {
-//        cached = new HashMap<>();
-//    }
+    private static final HashMap<String, Hyphenator> cached = new HashMap<>();;
 
     private final TrieNode trie;
     private final int leftMin;
@@ -36,8 +31,9 @@ public class Hyphenator implements Serializable {
         this.rightMin = pattern.rightMin;
         String pc = pattern.patternChars.replace("-", "\\-");
         String s = pc.charAt(0) == '_' ? pc.substring(1) : pc;
-        if (s.startsWith("\\-"))
+        if (s.startsWith("\\-")) {
             s = s.substring(2);
+        }
         patternChars = pc + s.toUpperCase();
         splitRegEx = "((?<=[^" + patternChars + "])|(?=[^_" + patternChars + "]))";
         mExceptions = pattern.mExceptions;
@@ -50,20 +46,16 @@ public class Hyphenator implements Serializable {
      * @return newly created or cached hyphenator instance
      */
     public static Hyphenator getInstance(String lang) {
-        HyphenPattern pattern = HyphenPattern.create(lang);
-        if (pattern == null)
-            return null;
-        return new Hyphenator(pattern);
-
-//        synchronized (cached) {
-//            if (!cached.containsKey(lang)) {
-//                HyphenPattern pattern = HyphenPattern.create(lang);
-//                if (pattern == null)
-//                    return null;
-//                cached.put(lang, new Hyphenator(pattern));
-//            }
-//            return cached.get(lang);
-//        }
+        synchronized (cached) {
+            if (!cached.containsKey(lang)) {
+                HyphenPattern pattern = HyphenPattern.create(lang);
+                if (pattern == null) {
+                    return null;
+                }
+                cached.put(lang, new Hyphenator(pattern));
+            }
+            return cached.get(lang);
+        }
     }
 
     public int getMinLen() {
@@ -75,9 +67,9 @@ public class Hyphenator implements Serializable {
         return patternChars + s.toUpperCase();
     }
 
-//    public static void clearCache() {
-//        cached = new HashMap<>();
-//    }
+    public static void clearCache() {
+        cached.clear();
+    }
 
     private static TrieNode createTrie(Map<Integer, String> patternObject) {
         TrieNode t, tree = new TrieNode();
@@ -112,7 +104,7 @@ public class Hyphenator implements Serializable {
                         if (digitStart < 0) {
                             digitStart = p;
                         }
-                        if(p == pattern.length()-1) {
+                        if (p == pattern.length() - 1) {
                             // last number in the pattern
                             String number = pattern.substring(digitStart, pattern.length());
                             list.add(Integer.valueOf(number));
@@ -151,7 +143,7 @@ public class Hyphenator implements Serializable {
                 // na  +2=7
                 // tion
                 for (int i = 0; i < hypPos.length; i++) {
-                    result.add(word.substring((i == 0 ? 0 : hypPos[i-1]), hypPos[i]));
+                    result.add(word.substring((i == 0 ? 0 : hypPos[i - 1]), hypPos[i]));
                 }
                 return result;
             }
@@ -207,12 +199,12 @@ public class Hyphenator implements Serializable {
         boolean inTag = false;
         for (int i = 0; i < as.length; i++) {
             String s = as[i];
-            if (inTag && s.equals(">"))
+            if (inTag && s.equals(">")) {
                 inTag = false;
-            else if (!inTag) {
-                if (s.equals("<"))
+            } else if (!inTag) {
+                if (s.equals("<")) {
                     inTag = true;
-                else {
+                } else {
                     // not in tag
                     if (s.length() >= minLen) {
                         List<String> list = hyphenate(s);
